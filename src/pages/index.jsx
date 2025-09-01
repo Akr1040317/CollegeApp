@@ -16,6 +16,8 @@ import SelectedColleges from "./SelectedColleges";
 
 import CollegeDetail from "./CollegeDetail";
 
+import ProtectedRoute from "../components/auth/ProtectedRoute";
+
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
@@ -57,30 +59,32 @@ function PagesContent() {
     const currentPage = _getCurrentPage(location.pathname);
     
     return (
-        <Layout currentPageName={currentPage}>
-            <Routes>            
-                
-                    <Route path="/" element={<Application />} />
-                
-                
-                <Route path="/Application" element={<Application />} />
-                
-                <Route path="/Recommendations" element={<Recommendations />} />
-                
-                <Route path="/Dashboard" element={<Dashboard />} />
-                
-                <Route path="/EssayCoach" element={<EssayCoach />} />
-                
-                <Route path="/ApplicationTracker" element={<ApplicationTracker />} />
-                
-                <Route path="/ScholarshipFinder" element={<ScholarshipFinder />} />
-                
-                <Route path="/SelectedColleges" element={<SelectedColleges />} />
-                
-                <Route path="/CollegeDetail" element={<CollegeDetail />} />
-                
-            </Routes>
-        </Layout>
+        <ProtectedRoute>
+            <Layout currentPageName={currentPage}>
+                <Routes>            
+                    
+                        <Route path="/" element={<Application />} />
+                    
+                    
+                    <Route path="/Application" element={<Application />} />
+                    
+                    <Route path="/Recommendations" element={<Recommendations />} />
+                    
+                    <Route path="/Dashboard" element={<Dashboard />} />
+                    
+                    <Route path="/EssayCoach" element={<EssayCoach />} />
+                    
+                    <Route path="/ApplicationTracker" element={<ApplicationTracker />} />
+                    
+                    <Route path="/ScholarshipFinder" element={<ScholarshipFinder />} />
+                    
+                    <Route path="/SelectedColleges" element={<SelectedColleges />} />
+                    
+                    <Route path="/CollegeDetail" element={<CollegeDetail />} />
+                    
+                </Routes>
+            </Layout>
+        </ProtectedRoute>
     );
 }
 

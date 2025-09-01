@@ -3,7 +3,10 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { GraduationCap, User, Home, Target, PenTool, CheckSquare, Award, Heart } from "lucide-react";
+import { GraduationCap, User, Home, Target, PenTool, CheckSquare, Award, Heart, LogOut } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { Button } from "../components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../components/ui/dropdown-menu";
 
 const navigationItems = [
   {
@@ -45,6 +48,15 @@ const navigationItems = [
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+  const { currentUser, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-300">
@@ -83,9 +95,33 @@ export default function Layout({ children, currentPageName }) {
             </nav>
 
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-gray-300" />
-              </div>
+              {currentUser ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="w-10 h-10 rounded-full p-0">
+                      <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-gray-300" />
+                      </div>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700">
+                    <DropdownMenuItem className="text-gray-300">
+                      {currentUser.displayName || currentUser.email}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={handleSignOut}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-gray-300" />
+                </div>
+              )}
             </div>
           </div>
         </div>

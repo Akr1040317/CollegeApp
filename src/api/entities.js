@@ -1,17 +1,19 @@
-import { base44 } from './base44Client';
+// Import Firebase-based entities instead of base44
+import { 
+  Student, 
+  ApplicationTracker, 
+  Essay, 
+  Scholarship, 
+  SelectedCollege, 
+  User 
+} from '../firebase/entities';
 
-
-export const Student = base44.entities.Student;
-
-export const ApplicationTracker = base44.entities.ApplicationTracker;
-
-export const Essay = base44.entities.Essay;
-
-export const Scholarship = base44.entities.Scholarship;
-
-export const SelectedCollege = base44.entities.SelectedCollege;
-
-
-
-// auth sdk:
-export const User = base44.auth;
+// Re-export for backward compatibility
+export { 
+  Student, 
+  ApplicationTracker, 
+  Essay, 
+  Scholarship, 
+  SelectedCollege, 
+  User 
+};
