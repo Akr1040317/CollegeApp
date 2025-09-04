@@ -448,3 +448,48 @@ export const mockTasks = [
     updated_at: new Date().toISOString()
   }
 ];
+
+// Statistics and filtering functions
+export const getTaskStats = (tasks) => {
+  if (!tasks || tasks.length === 0) {
+    return { total: 0, completed: 0, inProgress: 0, overdue: 0, notStarted: 0 };
+  }
+  
+  const now = new Date();
+  const completed = tasks.filter(t => t.status === TASK_STATUS.COMPLETED).length;
+  const inProgress = tasks.filter(t => t.status === TASK_STATUS.IN_PROGRESS).length;
+  const overdue = tasks.filter(t => t.status !== TASK_STATUS.COMPLETED && new Date(t.start_date) < now).length;
+  const notStarted = tasks.filter(t => t.status === TASK_STATUS.NOT_STARTED).length;
+  
+  return { 
+    total: tasks.length, 
+    completed, 
+    inProgress, 
+    overdue, 
+    notStarted 
+  };
+};
+
+export const getUpcomingTasks = (tasks, days = 7) => {
+  if (!tasks || tasks.length === 0) return [];
+  
+  const now = new Date();
+  const futureDate = new Date(now.getTime() + (days * 24 * 60 * 60 * 1000));
+  
+  return tasks.filter(task => {
+    if (task.status === TASK_STATUS.COMPLETED) return false;
+    const taskDate = new Date(task.start_date);
+    return taskDate >= now && taskDate <= futureDate;
+  }).sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+};
+
+export const getOverdueTasks = (tasks) => {
+  if (!tasks || tasks.length === 0) return [];
+  
+  const now = new Date();
+  
+  return tasks.filter(task => {
+    if (task.status === TASK_STATUS.COMPLETED) return false;
+    return new Date(task.start_date) < now;
+  }).sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+};

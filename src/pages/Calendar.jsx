@@ -197,19 +197,10 @@ export default function CalendarPage() {
     );
   };
 
-  const getTaskStats = () => {
-    const total = tasks.length;
-    const completed = tasks.filter(t => t.status === TASK_STATUS.COMPLETED).length;
-    const inProgress = tasks.filter(t => t.status === TASK_STATUS.IN_PROGRESS).length;
-    const overdue = getOverdueTasks().length;
-    const notStarted = tasks.filter(t => t.status === TASK_STATUS.NOT_STARTED).length;
-    
-    return { total, completed, inProgress, overdue, notStarted };
-  };
 
-  const stats = getTaskStats();
-  const upcomingTasks = getUpcomingTasks();
-  const overdueTasks = getOverdueTasks();
+  const stats = getTaskStats(tasks);
+  const upcomingTasks = getUpcomingTasks(tasks);
+  const overdueTasks = getOverdueTasks(tasks);
 
   if (isLoading) {
     return (

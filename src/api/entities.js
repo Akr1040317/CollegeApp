@@ -5,7 +5,8 @@ import {
   Essay, 
   Scholarship, 
   SelectedCollege, 
-  User 
+  User,
+  Task
 } from '../firebase/entities';
 
 // Re-export for backward compatibility
@@ -15,5 +16,6 @@ export {
   Essay, 
   Scholarship, 
   SelectedCollege, 
-  User 
+  User,
+  Task
 };
