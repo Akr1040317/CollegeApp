@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Calendar from '@/components/calendar/Calendar';
 import TaskManager from '@/components/calendar/TaskManager';
+import { useToast } from "@/components/ui/use-toast";
 import { 
   TASK_TYPES, 
   TASK_STATUS, 
@@ -30,11 +31,49 @@ export default function CalendarPage() {
   const [activeTab, setActiveTab] = useState('calendar');
   const [selectedTask, setSelectedTask] = useState(null);
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Load tasks from Firebase or local storage
     loadTasks();
   }, []);
+
+  // In-app reminders: toast overdue and due-soon tasks once per day
+  useEffect(() => {
+    if (!tasks || tasks.length === 0) return;
+
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const storageKey = `calendar-reminders-shown-${todayKey}`;
+    if (localStorage.getItem(storageKey)) return;
+
+    const now = new Date();
+    const msInDay = 1000 * 60 * 60 * 24;
+
+    const overdue = tasks.filter(t => t.status !== TASK_STATUS.COMPLETED && new Date(t.start_date) < now);
+    const dueSoon = tasks.filter(t => {
+      if (t.status === TASK_STATUS.COMPLETED) return false;
+      const diffDays = Math.ceil((new Date(t.start_date) - now) / msInDay);
+      return diffDays >= 0 && diffDays <= 2;
+    });
+
+    if (overdue.length > 0) {
+      toast({
+        title: `You have ${overdue.length} overdue task${overdue.length > 1 ? 's' : ''}`,
+        description: overdue.slice(0, 3).map(t => `• ${t.title}`).join('\n'),
+      });
+    }
+
+    if (dueSoon.length > 0) {
+      toast({
+        title: `${dueSoon.length} task${dueSoon.length > 1 ? 's are' : ' is'} due soon (≤ 2 days)`,
+        description: dueSoon.slice(0, 3).map(t => `• ${t.title}`).join('\n'),
+      });
+    }
+
+    if (overdue.length > 0 || dueSoon.length > 0) {
+      localStorage.setItem(storageKey, '1');
+    }
+  }, [tasks, toast]);
 
   const loadTasks = async () => {
     try {
