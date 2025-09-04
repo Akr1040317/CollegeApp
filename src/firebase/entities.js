@@ -3,7 +3,8 @@ import {
   ApplicationTrackerService, 
   EssayService, 
   ScholarshipService, 
-  SelectedCollegeService 
+  SelectedCollegeService,
+  TaskService
 } from './firestore';
 import { 
   getCurrentUser, 
@@ -22,6 +23,7 @@ export const ApplicationTracker = ApplicationTrackerService;
 export const Essay = EssayService;
 export const Scholarship = ScholarshipService;
 export const SelectedCollege = SelectedCollegeService;
+export const Task = TaskService;
 
 // Auth service to match base44 structure
 export const User = {

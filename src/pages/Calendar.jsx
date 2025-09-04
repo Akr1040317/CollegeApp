@@ -16,6 +16,8 @@ import {
 import Calendar from '@/components/calendar/Calendar';
 import TaskManager from '@/components/calendar/TaskManager';
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { Task } from "@/api/entities";
 import { 
   TASK_TYPES, 
   TASK_STATUS, 
@@ -27,16 +29,17 @@ import {
 } from '@/types/calendar';
 
 export default function CalendarPage() {
-  const [tasks, setTasks] = useState(mockTasks);
+  const [tasks, setTasks] = useState([]);
   const [activeTab, setActiveTab] = useState('calendar');
   const [selectedTask, setSelectedTask] = useState(null);
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { currentUser } = useAuth();
 
   useEffect(() => {
-    // Load tasks from Firebase or local storage
     loadTasks();
-  }, []);
+  }, [currentUser]);
 
   // In-app reminders: toast overdue and due-soon tasks once per day
   useEffect(() => {
@@ -77,28 +80,97 @@ export default function CalendarPage() {
 
   const loadTasks = async () => {
     try {
-      // In a real app, this would load from Firebase
-      // For now, we'll use mock data
-      setTasks(mockTasks);
+      setIsLoading(true);
+      
+      if (!currentUser) {
+        // Demo mode - use mock data
+        setTasks(mockTasks);
+        setIsLoading(false);
+        return;
+      }
+      
+      // Load from Firestore
+      const firestoreTasks = await Task.filter({ student_id: currentUser.uid });
+      setTasks(firestoreTasks);
     } catch (error) {
       console.error('Error loading tasks:', error);
+      // Fallback to mock data
+      setTasks(mockTasks);
+    }
+    setIsLoading(false);
+  };
+
+  const handleUpdateTask = async (updatedTask) => {
+    try {
+      if (currentUser) {
+        // Sync with Firestore
+        await Task.update(updatedTask.id, updatedTask);
+      }
+      
+      // Update local state
+      setTasks(prevTasks => 
+        prevTasks.map(task => 
+          task.id === updatedTask.id ? updatedTask : task
+        )
+      );
+      
+      if (selectedTask && selectedTask.id === updatedTask.id) {
+        setSelectedTask(updatedTask);
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast({
+        title: "Error updating task",
+        description: "Failed to sync with server. Changes saved locally.",
+        variant: "destructive"
+      });
     }
   };
 
-  const handleUpdateTask = (updatedTask) => {
-    setTasks(prevTasks => 
-      prevTasks.map(task => 
-        task.id === updatedTask.id ? updatedTask : task
-      )
-    );
+  const handleAddTask = async (newTask) => {
+    try {
+      if (currentUser) {
+        // Sync with Firestore
+        const createdTask = await Task.create({
+          ...newTask,
+          student_id: currentUser.uid
+        });
+        setTasks(prevTasks => [...prevTasks, createdTask]);
+      } else {
+        // Demo mode - just add to local state
+        setTasks(prevTasks => [...prevTasks, newTask]);
+      }
+    } catch (error) {
+      console.error('Error adding task:', error);
+      toast({
+        title: "Error adding task",
+        description: "Failed to sync with server. Task saved locally.",
+        variant: "destructive"
+      });
+      // Still add to local state
+      setTasks(prevTasks => [...prevTasks, newTask]);
+    }
   };
 
-  const handleAddTask = (newTask) => {
-    setTasks(prevTasks => [...prevTasks, newTask]);
-  };
-
-  const handleDeleteTask = (taskId) => {
-    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+  const handleDeleteTask = async (taskId) => {
+    try {
+      if (currentUser) {
+        // Sync with Firestore
+        await Task.delete(taskId);
+      }
+      
+      // Update local state
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast({
+        title: "Error deleting task",
+        description: "Failed to sync with server. Task removed locally.",
+        variant: "destructive"
+      });
+      // Still remove from local state
+      setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+    }
   };
 
   const handleTaskClick = (task) => {
@@ -138,6 +210,19 @@ export default function CalendarPage() {
   const stats = getTaskStats();
   const upcomingTasks = getUpcomingTasks();
   const overdueTasks = getOverdueTasks();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4" />
+            <p className="text-gray-400">Loading your tasks...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-8 px-4">

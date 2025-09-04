@@ -189,3 +189,12 @@ export const SelectedCollegeService = {
   list: (orderByField = 'updatedAt', limitCount = null) => listDocuments('selectedColleges', orderByField, 'desc', limitCount),
   filter: (filters) => filterDocuments('selectedColleges', filters)
 };
+
+export const TaskService = {
+  create: (data) => createDocument('tasks', data),
+  get: (id) => getDocument('tasks', id),
+  update: (id, data) => updateDocument('tasks', id, data),
+  delete: (id) => deleteDocument('tasks', id),
+  list: (orderByField = 'updatedAt', limitCount = null) => listDocuments('tasks', orderByField, 'desc', limitCount),
+  filter: (filters) => filterDocuments('tasks', filters)
+};
