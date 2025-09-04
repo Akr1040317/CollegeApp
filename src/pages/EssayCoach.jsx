@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Student, Essay } from "@/api/entities";
 import { InvokeLLM } from "@/api/integrations";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { PenTool, Sparkles, Save, FileText, Lightbulb } from "lucide-react";
 
 export default function EssayCoach() {
+  const { currentUser } = useAuth();
   const [student, setStudent] = useState(null);
   const [essays, setEssays] = useState([]);
   const [currentEssay, setCurrentEssay] = useState({
@@ -33,19 +35,52 @@ export default function EssayCoach() {
 
   const loadData = async () => {
     try {
+      console.log("Current user:", currentUser);
+      console.log("Loading data...");
+      
+      if (!currentUser) {
+        console.log("No user authenticated, using demo data");
+        const demoStudent = {
+          id: 'demo-student',
+          first_name: 'Demo',
+          last_name: 'Student',
+          intended_major: 'Computer Science',
+          gpa: 3.8
+        };
+        setStudent(demoStudent);
+        setEssays([]);
+        return;
+      }
+      
       const students = await Student.list('-updated_date', 1);
+      console.log("Students loaded:", students);
+      
       if (students.length > 0) {
         const studentData = students[0];
         setStudent(studentData);
         
         try {
+          console.log("Loading essays for student:", studentData.id);
           const essayList = await Essay.filter({ student_id: studentData.id }, '-updated_date');
+          console.log("Essays loaded:", essayList);
           setEssays(essayList);
         } catch (essayError) {
           console.warn("Could not load essays (Firebase permissions not configured):", essayError);
           // Set empty essays array if we can't access the database
           setEssays([]);
         }
+      } else {
+        console.log("No students found, creating demo data");
+        // Create a demo student for testing
+        const demoStudent = {
+          id: 'demo-student',
+          first_name: 'Demo',
+          last_name: 'Student',
+          intended_major: 'Computer Science',
+          gpa: 3.8
+        };
+        setStudent(demoStudent);
+        setEssays([]);
       }
     } catch (error) {
       console.error("Error loading data:", error);
