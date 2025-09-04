@@ -613,7 +613,7 @@ function TaskCard({
     }`}>
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
-          <div className="flex-1" onClick={onClick} className="cursor-pointer">
+          <div className="flex-1 cursor-pointer" onClick={onClick}>
             <div className="flex items-center gap-3 mb-2">
               <span className="text-xl">{getTaskTypeIcon(task.task_type)}</span>
               <h4 className="text-lg font-semibold text-white">{task.title}</h4>
