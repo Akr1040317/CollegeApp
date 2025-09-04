@@ -15,6 +15,7 @@ import ScholarshipFinder from "./ScholarshipFinder";
 import SelectedColleges from "./SelectedColleges";
 
 import CollegeDetail from "./CollegeDetail";
+import Calendar from "./Calendar";
 
 import ProtectedRoute from "../components/auth/ProtectedRoute";
 
@@ -37,6 +38,8 @@ const PAGES = {
     SelectedColleges: SelectedColleges,
     
     CollegeDetail: CollegeDetail,
+    
+    Calendar: Calendar,
     
 }
 
@@ -81,6 +84,8 @@ function PagesContent() {
                     <Route path="/SelectedColleges" element={<SelectedColleges />} />
                     
                     <Route path="/CollegeDetail" element={<CollegeDetail />} />
+                    
+                    <Route path="/Calendar" element={<Calendar />} />
                     
                 </Routes>
             </Layout>
