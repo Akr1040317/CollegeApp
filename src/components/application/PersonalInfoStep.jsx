@@ -2,7 +2,8 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, Mail, MapPin } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { User, Mail, MapPin, Phone, Calendar, Globe } from 'lucide-react';
 
 export default function PersonalInfoStep({ data, onChange }) {
   return (
@@ -61,6 +62,37 @@ export default function PersonalInfoStep({ data, onChange }) {
           />
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-base font-semibold text-gray-300 flex items-center gap-2">
+              <Phone className="w-4 h-4" />
+              Phone Number
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              value={data.phone || ''}
+              onChange={(e) => onChange('phone', e.target.value)}
+              placeholder="(555) 123-4567"
+              className="h-12 text-base bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="dateOfBirth" className="text-base font-semibold text-gray-300 flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Date of Birth
+            </Label>
+            <Input
+              id="dateOfBirth"
+              type="date"
+              value={data.date_of_birth || ''}
+              onChange={(e) => onChange('date_of_birth', e.target.value)}
+              className="h-12 text-base bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="zipcode" className="text-base font-semibold text-gray-300 flex items-center gap-2">
             <MapPin className="w-4 h-4" />
@@ -73,6 +105,53 @@ export default function PersonalInfoStep({ data, onChange }) {
             placeholder="12345"
             className="h-12 text-base bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-blue-500"
           />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="city" className="text-base font-semibold text-gray-300">
+              City
+            </Label>
+            <Input
+              id="city"
+              value={data.city || ''}
+              onChange={(e) => onChange('city', e.target.value)}
+              placeholder="New York"
+              className="h-12 text-base bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="state" className="text-base font-semibold text-gray-300">
+              State
+            </Label>
+            <Input
+              id="state"
+              value={data.state || ''}
+              onChange={(e) => onChange('state', e.target.value)}
+              placeholder="NY"
+              className="h-12 text-base bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="country" className="text-base font-semibold text-gray-300 flex items-center gap-2">
+            <Globe className="w-4 h-4" />
+            Country
+          </Label>
+          <Select value={data.country || 'US'} onValueChange={(value) => onChange('country', value)}>
+            <SelectTrigger className="h-12 text-base bg-gray-700 border-gray-600 text-white focus:border-blue-500 focus:ring-blue-500">
+              <SelectValue placeholder="Select country" />
+            </SelectTrigger>
+            <SelectContent className="bg-gray-700 border-gray-600">
+              <SelectItem value="US">United States</SelectItem>
+              <SelectItem value="CA">Canada</SelectItem>
+              <SelectItem value="UK">United Kingdom</SelectItem>
+              <SelectItem value="AU">Australia</SelectItem>
+              <SelectItem value="other">Other</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </CardContent>
     </Card>
