@@ -3,7 +3,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { GraduationCap, User, Home, Target, PenTool, CheckSquare, Award, Heart, LogOut, Calendar as CalendarIcon } from "lucide-react";
+import { GraduationCap, User, Home, Target, PenTool, CheckSquare, Award, Heart, LogOut, Calendar as CalendarIcon, Brain } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { Button } from "../components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../components/ui/dropdown-menu";
@@ -48,6 +48,11 @@ const navigationItems = [
     title: "Calendar",
     url: createPageUrl("Calendar"),
     icon: CalendarIcon,
+  },
+  {
+    title: "AI Assistant",
+    url: createPageUrl("AIAssistant"),
+    icon: Brain,
   },
 ];
 

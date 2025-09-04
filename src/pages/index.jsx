@@ -16,6 +16,7 @@ import SelectedColleges from "./SelectedColleges";
 
 import CollegeDetail from "./CollegeDetail";
 import Calendar from "./Calendar";
+import AIAssistant from "./AIAssistant";
 
 import ProtectedRoute from "../components/auth/ProtectedRoute";
 
@@ -40,6 +41,7 @@ const PAGES = {
     CollegeDetail: CollegeDetail,
     
     Calendar: Calendar,
+    AIAssistant: AIAssistant,
     
 }
 
@@ -86,6 +88,7 @@ function PagesContent() {
                     <Route path="/CollegeDetail" element={<CollegeDetail />} />
                     
                     <Route path="/Calendar" element={<Calendar />} />
+                    <Route path="/AIAssistant" element={<AIAssistant />} />
                     
                 </Routes>
             </Layout>
