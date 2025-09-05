@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Student } from "@/api/entities";
 import { SelectedCollege } from "@/api/entities";
 import { InvokeLLM } from "@/api/integrations";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,7 @@ import { MOCK_COLLEGES } from "@/types/college";
 
 export default function Recommendations() {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const [student, setStudent] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [selectedColleges, setSelectedColleges] = useState([]);
@@ -27,17 +29,26 @@ export default function Recommendations() {
 
   useEffect(() => {
     loadStudentData();
-  }, []);
+  }, [currentUser]);
 
   const loadStudentData = async () => {
     try {
-      const students = await Student.list('-updated_date', 1);
+      if (!currentUser) {
+        console.log("No user authenticated, redirecting to application");
+        navigate(createPageUrl("Application"));
+        return;
+      }
+
+      console.log("Loading student data for user:", currentUser.uid);
+      const students = await Student.filter({ student_id: currentUser.uid });
+      console.log("Found students:", students);
+      
       if (students.length > 0) {
         const studentData = students[0];
         setStudent(studentData);
         
         // Load selected colleges
-        const selected = await SelectedCollege.filter({ student_id: studentData.id });
+        const selected = await SelectedCollege.filter({ student_id: currentUser.uid });
         setSelectedColleges(selected.map(s => s.college_name));
 
         if (studentData.college_recommendations && studentData.college_recommendations.length > 0) {
@@ -47,6 +58,7 @@ export default function Recommendations() {
           await generateRecommendations(studentData);
         }
       } else {
+        console.log("No student data found, redirecting to application");
         navigate(createPageUrl("Application"));
       }
     } catch (error) {

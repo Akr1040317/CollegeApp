@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Student } from "@/api/entities";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -17,19 +18,29 @@ const TOTAL_STEPS = 5;
 
 export default function Application() {
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState([]);
   const [studentData, setStudentData] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadExistingApplication();
-  }, []);
+  }, [currentUser]);
 
   const loadExistingApplication = async () => {
     try {
-      const applications = await Student.list('-updated_date', 1);
+      if (!currentUser) {
+        console.log("No user authenticated, using demo data");
+        return;
+      }
+
+      console.log("Loading application for user:", currentUser.uid);
+      const applications = await Student.filter({ student_id: currentUser.uid });
+      console.log("Found applications:", applications);
+      
       if (applications.length > 0) {
         const existing = applications[0];
         setStudentData(existing);
@@ -63,6 +74,7 @@ export default function Application() {
       }
     } catch (error) {
       console.error("Error loading application:", error);
+      setError("Failed to load application data. Please try again.");
     }
   };
 
@@ -98,13 +110,28 @@ export default function Application() {
     if (!validateCurrentStep()) return;
     
     setIsSaving(true);
+    setError(null);
     try {
+      if (!currentUser) {
+        setError("Please sign in to save your application progress.");
+        setIsSaving(false);
+        return;
+      }
+
+      // Add user ID to student data
+      const dataWithUserId = {
+        ...studentData,
+        student_id: currentUser.uid
+      };
+
       // Save current progress
-      const applications = await Student.list('-updated_date', 1);
+      const applications = await Student.filter({ student_id: currentUser.uid });
       if (applications.length > 0) {
-        await Student.update(applications[0].id, studentData);
+        await Student.update(applications[0].id, dataWithUserId);
+        console.log("Updated application:", applications[0].id);
       } else {
-        await Student.create(studentData);
+        const created = await Student.create(dataWithUserId);
+        console.log("Created new application:", created.id);
       }
 
       // Mark step as completed
@@ -117,6 +144,7 @@ export default function Application() {
       }
     } catch (error) {
       console.error("Error saving application:", error);
+      setError("Failed to save application. Please try again.");
     }
     setIsSaving(false);
   };
@@ -129,28 +157,42 @@ export default function Application() {
 
   const handleGetRecommendations = async () => {
     setIsGenerating(true);
+    setError(null);
     try {
+      if (!currentUser) {
+        setError("Please sign in to get recommendations.");
+        setIsGenerating(false);
+        return;
+      }
+
       // Save final application
-      const applications = await Student.list('-updated_date', 1);
-      let studentId;
-      
       const finalData = {
         ...studentData,
+        student_id: currentUser.uid,
         application_status: 'completed'
       };
 
+      console.log("Saving final application data:", finalData);
+
+      const applications = await Student.filter({ student_id: currentUser.uid });
+      let studentId;
+      
       if (applications.length > 0) {
         await Student.update(applications[0].id, finalData);
         studentId = applications[0].id;
+        console.log("Updated existing application:", studentId);
       } else {
         const created = await Student.create(finalData);
         studentId = created.id;
+        console.log("Created new application:", studentId);
       }
 
       // Navigate to recommendations
+      console.log("Navigating to recommendations...");
       navigate(createPageUrl("Recommendations"));
     } catch (error) {
       console.error("Error completing application:", error);
+      setError("Failed to complete application. Please try again.");
     }
     setIsGenerating(false);
   };
@@ -178,6 +220,12 @@ export default function Application() {
     <div className="py-12 px-4 bg-gray-900">
       <div className="max-w-6xl mx-auto">
         <ProgressBar currentStep={currentStep} completedSteps={completedSteps} />
+        
+        {error && (
+          <div className="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
         
         <div className="mb-12">
           {renderCurrentStep()}
