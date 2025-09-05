@@ -22,7 +22,7 @@ export default function Recommendations() {
   const [selectedColleges, setSelectedColleges] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [activeTab, setActiveTab] = useState("search");
+  const [activeTab, setActiveTab] = useState("ai-recommendations");
   const [selectedCollege, setSelectedCollege] = useState(null);
 
   useEffect(() => {
@@ -294,23 +294,214 @@ Focus on real, accredited colleges and universities. Provide accurate informatio
         {/* Main Content with Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 bg-gray-700 mb-8">
+            <TabsTrigger value="ai-recommendations" className="data-[state=active]:bg-emerald-600">
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI Recommendations
+            </TabsTrigger>
             <TabsTrigger value="search" className="data-[state=active]:bg-blue-600">
               <Search className="w-4 h-4 mr-2" />
               Search Colleges
             </TabsTrigger>
-            <TabsTrigger value="recommendations" className="data-[state=active]:bg-blue-600">
-              <Sparkles className="w-4 h-4 mr-2" />
-              AI Recommendations
-            </TabsTrigger>
-            <TabsTrigger value="list" className="data-[state=active]:bg-blue-600">
-              <List className="w-4 h-4 mr-2" />
+            <TabsTrigger value="my-list" className="data-[state=active]:bg-purple-600">
+              <Heart className="w-4 h-4 mr-2" />
               My List
             </TabsTrigger>
-            <TabsTrigger value="compare" className="data-[state=active]:bg-blue-600">
+            <TabsTrigger value="compare" className="data-[state=active]:bg-orange-600">
               <BarChart3 className="w-4 h-4 mr-2" />
               Compare
             </TabsTrigger>
           </TabsList>
+
+          {/* AI Recommendations Tab */}
+          <TabsContent value="ai-recommendations" className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">Your AI-Powered College Recommendations</h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Based on your profile, we've found colleges that match your academic profile, preferences, and goals.
+              </p>
+            </div>
+
+            {recommendations.length > 0 ? (
+              <div className="space-y-8">
+                {/* Reach Schools */}
+                {recommendations.filter(r => r.school_type === 'reach').length > 0 && (
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <TrendingUp className="w-6 h-6 text-red-500" />
+                      Reach Schools
+                    </h3>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {recommendations.filter(r => r.school_type === 'reach').map((rec, index) => (
+                        <Card key={index} className="hover:shadow-lg transition-shadow border-0 bg-white/80 backdrop-blur-sm">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <CardTitle className="text-lg">{rec.college_name}</CardTitle>
+                              <Badge className="bg-red-100 text-red-800 border-red-200">
+                                Reach
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">{rec.location}</p>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-500">Match Score</span>
+                                <span className="font-semibold text-lg">{rec.match_score}/100</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-500">Acceptance Rate</span>
+                                <span className="font-semibold">{rec.acceptance_rate}</span>
+                              </div>
+                              <Button 
+                                onClick={() => handleAddCollege(rec.college_name)}
+                                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                              >
+                                <Plus className="w-4 h-4 mr-2" />
+                                Add to My List
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Target Schools */}
+                {recommendations.filter(r => r.school_type === 'target').length > 0 && (
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <Target className="w-6 h-6 text-yellow-500" />
+                      Target Schools
+                    </h3>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {recommendations.filter(r => r.school_type === 'target').map((rec, index) => (
+                        <Card key={index} className="hover:shadow-lg transition-shadow border-0 bg-white/80 backdrop-blur-sm">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <CardTitle className="text-lg">{rec.college_name}</CardTitle>
+                              <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+                                Target
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">{rec.location}</p>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-500">Match Score</span>
+                                <span className="font-semibold text-lg">{rec.match_score}/100</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-500">Acceptance Rate</span>
+                                <span className="font-semibold">{rec.acceptance_rate}</span>
+                              </div>
+                              <Button 
+                                onClick={() => handleAddCollege(rec.college_name)}
+                                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                              >
+                                <Plus className="w-4 h-4 mr-2" />
+                                Add to My List
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Safety Schools */}
+                {recommendations.filter(r => r.school_type === 'safety').length > 0 && (
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <CheckCircle className="w-6 h-6 text-green-500" />
+                      Safety Schools
+                    </h3>
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {recommendations.filter(r => r.school_type === 'safety').map((rec, index) => (
+                        <Card key={index} className="hover:shadow-lg transition-shadow border-0 bg-white/80 backdrop-blur-sm">
+                          <CardHeader>
+                            <div className="flex items-start justify-between">
+                              <CardTitle className="text-lg">{rec.college_name}</CardTitle>
+                              <Badge className="bg-green-100 text-green-800 border-green-200">
+                                Safety
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600">{rec.location}</p>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-500">Match Score</span>
+                                <span className="font-semibold text-lg">{rec.match_score}/100</span>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-gray-500">Acceptance Rate</span>
+                                <span className="font-semibold">{rec.acceptance_rate}</span>
+                              </div>
+                              <Button 
+                                onClick={() => handleAddCollege(rec.college_name)}
+                                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                              >
+                                <Plus className="w-4 h-4 mr-2" />
+                                Add to My List
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Next Steps */}
+                <Card className="max-w-4xl mx-auto mt-8 border-0 bg-gradient-to-r from-blue-50 to-emerald-50">
+                  <CardContent className="p-8 text-center">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4">Next Steps</h3>
+                    <p className="text-lg text-gray-600 mb-6">
+                      Add colleges to your list, then research them in detail and plan your application strategy.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      <Button 
+                        onClick={() => setActiveTab('my-list')}
+                        className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+                      >
+                        <Heart className="w-4 h-4 mr-2" />
+                        View My List
+                      </Button>
+                      <Button 
+                        onClick={() => setActiveTab('search')}
+                        variant="outline"
+                        className="border-gray-300 hover:bg-gray-50"
+                      >
+                        <Search className="w-4 h-4 mr-2" />
+                        Search More Colleges
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <Card className="max-w-2xl mx-auto text-center">
+                <CardContent className="p-12">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Sparkles className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">No Recommendations Yet</h3>
+                  <p className="text-gray-600 mb-6">
+                    Complete your application profile to get personalized college recommendations.
+                  </p>
+                  <Button 
+                    onClick={() => navigate(createPageUrl("Application"))}
+                    className="bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700"
+                  >
+                    Complete Application
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
           {/* Search Tab */}
           <TabsContent value="search" className="space-y-6">
@@ -495,7 +686,55 @@ Focus on real, accredited colleges and universities. Provide accurate informatio
           </TabsContent>
 
           {/* My List Tab */}
-          <TabsContent value="list" className="space-y-6">
+          <TabsContent value="my-list" className="space-y-6">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">My College List</h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                Manage your college list, categorize schools, and plan your application strategy.
+              </p>
+            </div>
+
+            {/* Decision Type Planning */}
+            <Card className="max-w-4xl mx-auto mb-8 border-0 bg-gradient-to-r from-blue-50 to-purple-50">
+              <CardHeader>
+                <CardTitle className="text-xl text-center text-gray-900">
+                  Application Strategy Planning
+                </CardTitle>
+                <p className="text-center text-gray-600">
+                  Plan which decision type you'll use for each school
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <div className="text-center p-4 bg-red-50 rounded-lg">
+                    <h3 className="font-semibold text-red-800 mb-2">Early Decision (ED)</h3>
+                    <p className="text-sm text-red-600">Binding commitment, early deadline</p>
+                  </div>
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <h3 className="font-semibold text-orange-800 mb-2">Restricted Early Action (REA)</h3>
+                    <p className="text-sm text-orange-600">Non-binding, but can't apply ED elsewhere</p>
+                  </div>
+                  <div className="text-center p-4 bg-yellow-50 rounded-lg">
+                    <h3 className="font-semibold text-yellow-800 mb-2">Early Action (EA)</h3>
+                    <p className="text-sm text-yellow-600">Non-binding, early deadline</p>
+                  </div>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <h3 className="font-semibold text-green-800 mb-2">Regular Decision (RD)</h3>
+                    <p className="text-sm text-green-600">Standard deadline, non-binding</p>
+                  </div>
+                </div>
+                <div className="mt-6 text-center">
+                  <Button 
+                    onClick={() => navigate(createPageUrl("ApplicationTracker"))}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
+                    <Target className="w-4 h-4 mr-2" />
+                    Plan Application Strategy
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             <CollegeList 
               colleges={selectedColleges.map(name => MOCK_COLLEGES.find(c => c.name === name)).filter(Boolean)}
               onUpdateCollege={handleUpdateCollege}

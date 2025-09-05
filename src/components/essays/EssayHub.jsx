@@ -215,20 +215,24 @@ export default function EssayHub({
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-gray-700">
+        <TabsList className="grid w-full grid-cols-5 bg-gray-700">
           <TabsTrigger value="common-app" className="data-[state=active]:bg-blue-600">
             <FileText className="w-4 h-4 mr-2" />
             Common App
           </TabsTrigger>
-          <TabsTrigger value="supplemental" className="data-[state=active]:bg-blue-600">
+          <TabsTrigger value="college-essays" className="data-[state=active]:bg-purple-600">
+            <Users className="w-4 h-4 mr-2" />
+            College Essays
+          </TabsTrigger>
+          <TabsTrigger value="supplemental" className="data-[state=active]:bg-indigo-600">
             <PenTool className="w-4 h-4 mr-2" />
             Supplemental
           </TabsTrigger>
-          <TabsTrigger value="my-essays" className="data-[state=active]:bg-blue-600">
+          <TabsTrigger value="my-essays" className="data-[state=active]:bg-green-600">
             <BookOpen className="w-4 h-4 mr-2" />
             My Essays
           </TabsTrigger>
-          <TabsTrigger value="templates" className="data-[state=active]:bg-blue-600">
+          <TabsTrigger value="templates" className="data-[state=active]:bg-orange-600">
             <Target className="w-4 h-4 mr-2" />
             Templates
           </TabsTrigger>
@@ -287,6 +291,129 @@ export default function EssayHub({
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* College Essays Tab */}
+        <TabsContent value="college-essays" className="space-y-6">
+          <Card className="border-gray-700 bg-gray-800/80">
+            <CardHeader>
+              <CardTitle className="text-gray-200 flex items-center gap-2">
+                <Users className="w-5 h-5" />
+                College-Specific Essays
+              </CardTitle>
+              <p className="text-gray-400">Manage essays for each college in your list</p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Mock colleges for demonstration */}
+                {[
+                  { name: "Harvard University", prompts: ["Why Harvard?", "Describe a challenge you've overcome"] },
+                  { name: "Stanford University", prompts: ["Why Stanford?", "Tell us about something meaningful to you"] },
+                  { name: "MIT", prompts: ["Why MIT?", "Describe your community"] },
+                  { name: "UC Berkeley", prompts: ["Personal insight questions"] }
+                ].map((college, index) => (
+                  <Card key={index} className="border-gray-600 bg-gray-700/50">
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-lg text-gray-200">{college.name}</CardTitle>
+                        <Badge className="bg-purple-100 text-purple-800">
+                          {college.prompts.length} prompts
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {college.prompts.map((prompt, promptIndex) => (
+                          <div key={promptIndex} className="flex items-center justify-between p-3 bg-gray-600/30 rounded-lg">
+                            <div className="flex-1">
+                              <p className="text-sm text-gray-300 mb-1">Prompt {promptIndex + 1}</p>
+                              <p className="text-gray-200">{prompt}</p>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-gray-500 text-gray-300 hover:bg-gray-600"
+                                onClick={() => {
+                                  setNewEssay({
+                                    title: `${college.name} - Prompt ${promptIndex + 1}`,
+                                    essay_type: ESSAY_TYPES.SUPPLEMENTAL,
+                                    college_name: college.name,
+                                    college_prompt: prompt,
+                                    word_limit: 650,
+                                    notes: '',
+                                    tags: [college.name]
+                                  });
+                                  setIsEditing(true);
+                                  setActiveTab('my-essays');
+                                }}
+                              >
+                                <PenTool className="w-3 h-3 mr-1" />
+                                Write
+                              </Button>
+                              <Button
+                                size="sm"
+                                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+                                onClick={() => {
+                                  // AI help for this prompt
+                                  console.log(`AI help for ${college.name} prompt: ${prompt}`);
+                                }}
+                              >
+                                <Sparkles className="w-3 h-3 mr-1" />
+                                AI Help
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                        <div className="pt-2 border-t border-gray-600">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full border-gray-500 text-gray-300 hover:bg-gray-600"
+                            onClick={() => {
+                              setNewEssay({
+                                title: `${college.name} - New Prompt`,
+                                essay_type: ESSAY_TYPES.SUPPLEMENTAL,
+                                college_name: college.name,
+                                college_prompt: '',
+                                word_limit: 650,
+                                notes: '',
+                                tags: [college.name]
+                              });
+                              setIsEditing(true);
+                              setActiveTab('my-essays');
+                            }}
+                          >
+                            <Plus className="w-3 h-3 mr-2" />
+                            Add Custom Prompt
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {/* Add College Button */}
+                <Card className="border-dashed border-gray-600 bg-gray-700/30">
+                  <CardContent className="p-6 text-center">
+                    <Users className="w-8 h-8 text-gray-400 mx-auto mb-3" />
+                    <h3 className="text-lg font-semibold text-gray-300 mb-2">Add More Colleges</h3>
+                    <p className="text-gray-400 mb-4">Add colleges to your list to see their specific essay prompts</p>
+                    <Button
+                      onClick={() => {
+                        // Navigate to college list or search
+                        console.log("Navigate to college search");
+                      }}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Browse Colleges
+                    </Button>
+                  </CardContent>
+                </Card>
               </div>
             </CardContent>
           </Card>
