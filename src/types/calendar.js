@@ -322,11 +322,11 @@ export const getCalendarView = (date, viewType = 'month') => {
     
     const weeks = [];
     let currentWeek = [];
-    let currentDate = new Date(startDate);
+    let iterDate = new Date(startDate);
     
     for (let i = 0; i < 42; i++) {
-      currentWeek.push(new Date(currentDate));
-      currentDate.setDate(currentDate.getDate() + 1);
+      currentWeek.push(new Date(iterDate));
+      iterDate.setDate(iterDate.getDate() + 1);
       
       if (currentWeek.length === 7) {
         weeks.push([...currentWeek]);
