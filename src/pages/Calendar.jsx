@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Calendar as CalendarIcon, 
@@ -89,9 +90,15 @@ export default function CalendarPage() {
         return;
       }
       
-      // Load from Firestore
-      const firestoreTasks = await Task.filter({ student_id: currentUser.uid });
-      setTasks(firestoreTasks);
+      // Load from Firestore - use simple approach to avoid index issues
+      try {
+        const allTasks = await Task.list('createdAt', 100);
+        const userTasks = allTasks.filter(task => task.student_id === currentUser.uid);
+        setTasks(userTasks);
+      } catch (firestoreError) {
+        console.warn('Firestore query failed, using mock data:', firestoreError.message);
+        setTasks(mockTasks);
+      }
     } catch (error) {
       console.error('Error loading tasks:', error);
       // Fallback to mock data
